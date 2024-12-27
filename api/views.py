@@ -1,11 +1,12 @@
 from django.db.models import F, Case, When, Value, BooleanField
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 
+from api.filters import CustomSearch
 from api.models import Playlist, Song, Artist, Album, PlaylistSong, Like
 from api.permissions import IsOwnerOrReadOnly, IsArtistOrReadOnly
 from api.serializers import ArtistSerializer, AlbumSerializer, SongSerializer, PlaylistSerializer, \
@@ -79,20 +80,35 @@ class SongViewSet(viewsets.ModelViewSet):
     serializer_class = SongSerializer
 
     lookup_field = 'slug'
+    ordering = ['created_at']
+
+    filter_backends = [filters.SearchFilter, CustomSearch]
+    search_fields = ['title', 'artist__name', 'genre']
 
     def get_queryset(self):
-        if not self.request.user.is_authenticated:
-            return self.queryset
-
-        return self.queryset.annotate(
-            liked=Case(
-                When(
-                    likes__user=self.request.user, then=Value(True)
-                ),
-                default=Value(False),
-                output_field=BooleanField()
+        queryset = self.queryset
+        if self.request.user.is_authenticated:
+            return queryset.annotate(
+                liked=Case(
+                    When(
+                        likes__user=self.request.user, then=Value(True)
+                    ),
+                    default=Value(False),
+                    output_field=BooleanField()
+                )
             )
-        )
+        return queryset
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter('artist', OpenApiTypes.STR, description='slug for requested artist', required=False),
+            OpenApiParameter('album', OpenApiTypes.STR, description='slug for requested album', required=False),
+            OpenApiParameter('user', OpenApiTypes.STR, description='slug for requested user', required=False),
+        ]
+    )
+    def list(self, request, **kwargs):
+        return super().list(request, **kwargs)
+
     @extend_schema(responses=SongFileUrlSerializer)
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
     def get_url(self, request, slug=None):
