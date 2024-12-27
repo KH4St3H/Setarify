@@ -8,6 +8,7 @@ drf-spectacular-sidecar==2024.12.1
 inflection==0.5.1
 jsonschema==4.23.0
 jsonschema-specifications==2024.10.1
+pillow==11.0.0
 psycopg2-binary==2.9.10
 PyJWT==2.10.1
 python-dotenv==1.0.1
