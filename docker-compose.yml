@@ -9,6 +9,8 @@ services:
 
     volumes:
       - db:/var/lib/postgresql/data
+    networks:
+      - nw
     ports:
       - "5332:5432"
     restart: unless-stopped
@@ -18,5 +20,25 @@ services:
       timeout: 10s
       retries: 5
 
+  web:
+    container_name: web
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - nw
+    volumes:
+      - static:/app/static/
+      - media:/app/media/
+    entrypoint: python manage.py runserver 0.0.0.0:8000
+
 volumes:
   db:
+  media:
+  static:
+
+networks:
+  nw:
