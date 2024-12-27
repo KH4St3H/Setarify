@@ -1,0 +1,22 @@
+services:
+  db:
+    container_name: postgres
+    image: postgres
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - "5332:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  db:
