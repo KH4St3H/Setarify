@@ -1,5 +1,6 @@
 from rest_framework import permissions
-from api.models import Song, Artist, Playlist
+from api.models import Song, Artist, Playlist, Album
+
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -15,7 +16,8 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if isinstance(obj, Artist):
             return obj.user == request.user
 
-        if isinstance(obj, Song):
+        if isinstance(obj, Album):
+            print(obj.artist)
             return obj.artist.filter(user=request.user).exists()
 
         if isinstance(obj, Playlist):

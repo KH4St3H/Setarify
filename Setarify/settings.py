@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
+from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -84,6 +85,12 @@ REST_FRAMEWORK = {
     ),
 }
 
+# SimpleJWT
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+}
+
 
 # DRF spectacular
 SPECTACULAR_SETTINGS = {
@@ -147,6 +154,11 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = 'static/'
+
+
+# Media files
+MEDIA_ROOT = 'media/'
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
