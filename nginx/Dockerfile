@@ -1,4 +1,6 @@
-FROM ubuntu:latest
-LABEL authors="mehr"
+FROM nginx:1.25
 
-ENTRYPOINT ["top", "-b"]
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d
+
+EXPOSE 80

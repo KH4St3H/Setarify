@@ -35,6 +35,18 @@ services:
       - media:/app/media/
     entrypoint: python manage.py runserver 0.0.0.0:8000
 
+  nginx:
+    container_name: nginx
+    build: nginx/
+    ports:
+      - "9000:80"
+    networks:
+      - nw
+    volumes:
+      - static:/static/
+      - media:/media/
+
+
 volumes:
   db:
   media:
