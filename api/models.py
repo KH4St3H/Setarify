@@ -4,11 +4,12 @@ from django.db import models
 
 class Artist(models.Model):
     name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True)
     date_of_birth = models.DateField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -16,6 +17,7 @@ class Artist(models.Model):
 
 class Album(models.Model):
     title = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True)
     release_date = models.DateField(blank=True, null=True)
     artist = models.ManyToManyField(Artist, related_name='artists')
 
@@ -25,6 +27,7 @@ class Album(models.Model):
 
 class Song(models.Model):
     title = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True)
     genre = models.CharField(max_length=100)
     file_url = models.URLField(blank=True, null=True)
     release_date = models.DateField(blank=True, null=True)
@@ -38,6 +41,7 @@ class Song(models.Model):
 
 class Playlist(models.Model):
     title = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True)
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
     created_at = models.DateTimeField(auto_now_add=True)
