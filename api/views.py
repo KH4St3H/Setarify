@@ -1,4 +1,4 @@
-from django.db.models import F
+from django.db.models import F, Case, When, Value, BooleanField
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, permissions, status
@@ -80,6 +80,19 @@ class SongViewSet(viewsets.ModelViewSet):
 
     lookup_field = 'slug'
 
+    def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return self.queryset
+
+        return self.queryset.annotate(
+            liked=Case(
+                When(
+                    likes__user=self.request.user, then=Value(True)
+                ),
+                default=Value(False),
+                output_field=BooleanField()
+            )
+        )
     @extend_schema(responses=SongFileUrlSerializer)
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
     def get_url(self, request, slug=None):
@@ -94,19 +107,19 @@ class SongViewSet(viewsets.ModelViewSet):
         song = self.get_object()
         like, created = Like.objects.get_or_create(song=song, user=request.user)
         if created:
-            song.hit_count += 1
+            song.like_count += 1
             song.save()
         return Response(None, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
-    def like(self, request, slug=None):
+    def dislike(self, request, slug=None):
         song = self.get_object()
         try:
-            like, created = Like.objects.get(song=song, user=request.user)
+            like = Like.objects.get(song=song, user=request.user)
         except Like.DoesNotExist:
             return Response(None, status=status.HTTP_200_OK)
         like.delete()
-        song.hit_count -= 1
+        song.like_count -= 1
         song.save()
         return Response(None, status=status.HTTP_200_OK)
 

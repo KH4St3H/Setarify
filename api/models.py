@@ -45,7 +45,6 @@ class Song(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-
 class Playlist(models.Model):
     title = models.CharField(max_length=100)
     cover = models.ImageField(upload_to='playlist-covers/', null=True, blank=True)
@@ -68,7 +67,7 @@ class PlaylistSong(models.Model):
 
 class Like(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
-    song = models.ForeignKey(Song, null=True, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, null=True, on_delete=models.CASCADE, related_name='likes')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

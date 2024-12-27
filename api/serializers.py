@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from rest_framework.fields import HiddenField
+from rest_framework.fields import HiddenField, BooleanField
 from rest_framework.relations import SlugRelatedField
 
 from api.models import Artist, Album, Song, Playlist, Like, PlaylistSong
@@ -36,10 +36,11 @@ class SongSerializer(serializers.ModelSerializer):
     artist = ArtistSerializer(read_only=True, many=True)
     album = AlbumBriefSerializer(read_only=True)
     album_slug = SlugRelatedField(slug_field='slug', queryset=Album.objects.all(), write_only=True)
+    liked = BooleanField(read_only=True, default=False)
 
     class Meta:
         model = Song
-        fields = ['title', 'slug', 'genre', 'artist', 'release_date', 'album', 'album_slug', 'cover']
+        fields = ['title', 'slug', 'genre', 'artist', 'release_date', 'album', 'album_slug', 'cover', 'liked']
         write_only_fields = ['file_url']
 
     def create(self, validated_data):
