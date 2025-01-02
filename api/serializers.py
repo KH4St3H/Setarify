@@ -40,7 +40,8 @@ class SongSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Song
-        fields = ['title', 'slug', 'genre', 'artist', 'release_date', 'album', 'album_slug', 'cover', 'liked']
+        fields = ['title', 'slug', 'genre', 'artist', 'release_date', 'album', 'album_slug',
+                  'cover', 'like_count', 'hit_count', 'liked']
         write_only_fields = ['file_url']
 
     def create(self, validated_data):
@@ -65,7 +66,7 @@ class SongBriefWithArtistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Song
-        fields = ['title', 'slug', 'artist', 'cover']
+        fields = ['title', 'slug', 'artist', 'cover', 'like_count', 'hit_count']
 
 
 class AlbumWithSongsSerializer(serializers.ModelSerializer):

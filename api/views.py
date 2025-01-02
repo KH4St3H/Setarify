@@ -92,7 +92,8 @@ class SongViewSet(viewsets.ModelViewSet):
             queryset = queryset.annotate(
                 liked=Case(
                     When(
-                        id__in=sq
+                        id__in=sq,
+                        then=Value(True)
                     ),
                     default=Value(False),
                     output_field=BooleanField()
