@@ -10,7 +10,7 @@ class Artist(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    user = models.OneToOneField(User, null=True, on_delete=models.CASCADE, related_name='artist')
+    user = models.OneToOneField(User, blank=True, null=True, on_delete=models.CASCADE, related_name='artist')
 
     def __str__(self):
         return self.name
