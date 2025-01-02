@@ -1,4 +1,4 @@
-from django.db.models import F, Case, When, Value, BooleanField
+from django.db.models import F, Case, When, Value, BooleanField, Subquery
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, permissions, status, filters
@@ -88,10 +88,11 @@ class SongViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset
         if self.request.user.is_authenticated:
-            return queryset.annotate(
+            sq = Subquery(Like.objects.filter(user=self.request.user).values('song_id'))
+            queryset = queryset.annotate(
                 liked=Case(
                     When(
-                        likes__user=self.request.user, then=Value(True)
+                        id__in=sq
                     ),
                     default=Value(False),
                     output_field=BooleanField()
