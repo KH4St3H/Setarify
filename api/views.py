@@ -3,14 +3,16 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
+from rest_framework.parsers import JSONParser, FileUploadParser
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 
 from api.filters import CustomSearch
-from api.models import Playlist, Song, Artist, Album, PlaylistSong, Like
-from api.permissions import IsOwnerOrReadOnly, IsArtistOrReadOnly
+from api.models import Playlist, Song, Artist, Album, PlaylistSong, Like, SongFile
+from api.permissions import IsOwnerOrReadOnly, IsArtistOrReadOnly, IsArtist
 from api.serializers import ArtistSerializer, AlbumSerializer, SongSerializer, PlaylistSerializer, \
-    AlbumWithSongsSerializer, PlaylistWithSongsSerializer, PlaylistSongSerializer, SongFileUrlSerializer
+    AlbumWithSongsSerializer, PlaylistWithSongsSerializer, PlaylistSongSerializer, SongFileUrlSerializer, \
+    SongFileSerializer
 
 
 class PlaylistViewSet(viewsets.ModelViewSet):
@@ -117,8 +119,12 @@ class SongViewSet(viewsets.ModelViewSet):
         song = self.get_object()
         song.hit_count += 1
         song.save()
-        serializer = SongFileUrlSerializer(song)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            file = song.files.order_by('-quality').first().file.url
+        except SongFile.DoesNotExist:
+            file = song.file_url
+
+        return Response({'file_url': file}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
     def like(self, request, slug=None):
@@ -172,3 +178,16 @@ class AlbumViewSet(viewsets.ModelViewSet):
         obj = serializer.save()
         obj.artist.add(self.request.user.artist)
         obj.save()
+
+
+class SongFileViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsArtist]
+    queryset = SongFile.objects.all()
+    serializer_class = SongFileSerializer
+
+    @action(detail=True, methods=['put'], permission_classes=[IsArtist, IsOwnerOrReadOnly], parser_classes=[FileUploadParser])
+    def upload(self, request, *args, **kwargs):
+        obj = self.get_object()
+        obj.file = request.data['file']
+        obj.save()
+        return Response(None, status=status.HTTP_204_NO_CONTENT)

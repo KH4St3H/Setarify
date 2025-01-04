@@ -24,6 +24,13 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
             return obj.author == request.user
 
 
+class IsArtist(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_superuser:
+            return True
+        return Artist.objects.filter(user=request.user.id).exists()
+
+
 class IsArtistOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:

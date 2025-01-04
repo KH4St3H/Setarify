@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from api.storage_backends import PrivateMediaStorage
 
 
 class Artist(models.Model):
@@ -83,3 +84,18 @@ class Like(models.Model):
 
     class Meta:
         unique_together = ('user', 'song')
+
+class SongFile(models.Model):
+    class Quality(models.IntegerChoices):
+        LOW = 0, "128kbps"
+        MEDIUM = 1, "320kbps"
+        HIGH = 2, "LossLess"
+        HIGH_FI = 3, "Hi-Fi"
+
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    file = models.FileField(storage=PrivateMediaStorage(), null=True, blank=True)
+    song = models.ForeignKey(Song, null=True, on_delete=models.SET_NULL, to_field='slug', related_name='files')
+    quality = models.SmallIntegerField(choices=Quality, default=1)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

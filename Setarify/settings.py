@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'api',
     'drf_spectacular',
     'drf_spectacular_sidecar',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -150,17 +151,43 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Object storage
+use_storage = os.environ.get('DJANGO_USE_STORAGE', 'false') == 'true'
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
+if use_storage:
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
+    AWS_S3_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+    }
+    AWS_S3_ADDRESSING_STYLE = "virtual"
 
-STATIC_URL = 'static/'
-STATIC_ROOT = 'static/'
+    # Django-storages configuration
+    STORAGES = {
+        "default": {
+            "BACKEND": "api.storage_backends.PublicMediaStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+            # "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        },
+    }
 
+    STATIC_URL = 'static/'
+    STATICFILES_STORAGE = 'api.storage_backends.StaticStorage'
 
-# Media files
-MEDIA_ROOT = 'media/'
-MEDIA_URL = '/media/'
+    DEFAULT_FILE_STORAGE = 'api.storage_backends.PublicMediaStorage'
+    PRIVATE_FILE_STORAGE = 'api.storage_backends.PrivateMediaStorage'
+
+else:
+    STATIC_URL = 'static/'
+    STATIC_ROOT = 'static/'
+
+    # Media files
+    MEDIA_ROOT = 'media/'
+    MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

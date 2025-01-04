@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.fields import HiddenField, BooleanField
 from rest_framework.relations import SlugRelatedField
 
-from api.models import Artist, Album, Song, Playlist, Like, PlaylistSong
+from api.models import Artist, Album, Song, Playlist, Like, PlaylistSong, SongFile
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -114,7 +114,15 @@ class PlaylistWithSongsSerializer(serializers.ModelSerializer):
         fields = ['title', 'slug', 'author', 'songs', 'cover']
 
 
-class SongFileUrlSerializer(serializers.ModelSerializer):
+class SongFileUrlSerializer(serializers.Serializer):
+    file_url = serializers.URLField(read_only=True)
+
     class Meta:
-        model = Song
-        fields = ['file_url']
+        fields = ['file']
+
+
+class SongFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SongFile
+        fields = '__all__'
+
