@@ -121,7 +121,7 @@ class SongViewSet(viewsets.ModelViewSet):
         song.save()
         try:
             file = song.files.order_by('-quality').first().file.url
-        except SongFile.DoesNotExist:
+        except Exception:
             file = song.file_url
 
         return Response({'file_url': file}, status=status.HTTP_200_OK)
