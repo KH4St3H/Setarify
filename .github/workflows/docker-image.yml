@@ -24,6 +24,6 @@ jobs:
 
     - name: 'Build and push image'
       run: |
-        docker build . --tag ghcr.io/KH4ST3H/setarify-backend:$(date +%s) --tag ghcr.io/KH4ST3H/setarify-backend:latest
-        docker push ghcr.io/KH4ST3H/setarify-backend:latest
+        docker build . --tag ghcr.io/kh4st3h/setarify-backend:$(date +%s) --tag ghcr.io/kh4st3h/setarify-backend:latest
+        docker push ghcr.io/kh4st3h/setarify-backend:latest
 
