@@ -4,7 +4,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser, FileUploadParser
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from api.filters import CustomSearch
@@ -114,7 +114,7 @@ class SongViewSet(viewsets.ModelViewSet):
         return super().list(request, **kwargs)
 
     @extend_schema(responses=SongFileUrlSerializer)
-    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['get'], permission_classes=[AllowAny])
     def get_url(self, request, slug=None):
         song = self.get_object()
         song.hit_count += 1
