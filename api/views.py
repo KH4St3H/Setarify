@@ -2,6 +2,7 @@ from django.db.models import F, Case, When, Value, BooleanField, Subquery
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, permissions, status, filters
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser, FileUploadParser
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
@@ -76,8 +77,14 @@ class PlaylistViewSet(viewsets.ModelViewSet):
         obj.save()
 
 
+class SongPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+
+
 class SongViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOwnerOrReadOnly, IsArtistOrReadOnly]
+    pagination_class = SongPagination
     queryset = Song.objects.all()
     serializer_class = SongSerializer
 
