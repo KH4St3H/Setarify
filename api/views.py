@@ -161,6 +161,7 @@ class ArtistViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOwnerOrReadOnly]
     queryset = Artist.objects.all()
     serializer_class = ArtistSerializer
+    pagination_class = SongPagination
 
     lookup_field = 'slug'
 
@@ -169,6 +170,7 @@ class AlbumViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOwnerOrReadOnly, IsArtistOrReadOnly]
     queryset = Album.objects.all().prefetch_related('songs').prefetch_related('artist')
     serializer_class = AlbumSerializer
+    pagination_class = SongPagination
 
     lookup_field = 'slug'
 
