@@ -124,8 +124,7 @@ class SongViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], permission_classes=[AllowAny])
     def get_url(self, request, slug=None):
         song = self.get_object()
-        song.hit_count += 1
-        song.save()
+        Song.objects.filter(pk=song.pk).update(hit_count=F('hit_count') + 1)
         try:
             file = song.files.order_by('-quality').first().file.url
         except Exception:
@@ -138,8 +137,7 @@ class SongViewSet(viewsets.ModelViewSet):
         song = self.get_object()
         like, created = Like.objects.get_or_create(song=song, user=request.user)
         if created:
-            song.like_count += 1
-            song.save()
+            Song.objects.filter(pk=song.pk).update(like_count=F('like_count') + 1)
         return Response(None, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
@@ -150,8 +148,7 @@ class SongViewSet(viewsets.ModelViewSet):
         except Like.DoesNotExist:
             return Response(None, status=status.HTTP_200_OK)
         like.delete()
-        song.like_count -= 1
-        song.save()
+        Song.objects.filter(pk=song.pk).update(like_count=F('like_count') - 1)
         return Response(None, status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
